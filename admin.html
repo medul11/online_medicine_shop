@@ -1,0 +1,413 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel | অ্যাডমিন প্যানেল</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1e8449;
+      --primary-light: #27ae60;
+      --primary-dark: #186a3b;
+      --secondary: #3498db;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --light: #f5f7fa;
+      --dark: #222;
+      --gray: #666;
+      --white: #fff;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --radius: 10px;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: "Noto Sans Bengali", "Segoe UI", sans-serif; 
+      margin:0; 
+      background: var(--light); 
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .wrap{
+      max-width: 900px;
+      width: 100%;
+    }
+    
+    .panel{
+      background: var(--white);
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    
+    .top{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .top h2 {
+      margin: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      font-family: inherit;
+      transition: border 0.3s;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .danger {
+      background: var(--danger);
+    }
+    
+    .danger:hover {
+      background: #c0392b;
+    }
+    
+    .back-link {
+      text-decoration: none;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+    
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: var(--radius);
+    }
+    
+    li {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    
+    li:hover {
+      background: #f9f9f9;
+    }
+    
+    li:last-child {
+      border-bottom: none;
+    }
+    
+    .product-info {
+      flex: 1;
+    }
+    
+    .product-info strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .product-meta {
+      display: flex;
+      gap: 15px;
+      margin-top: 8px;
+    }
+    
+    .product-type {
+      background: #e8f4fd;
+      color: var(--secondary);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .product-price {
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .small {
+      font-size: 12px;
+      color: var(--gray);
+    }
+    
+    .login-icon {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .login-icon i {
+      font-size: 48px;
+      color: var(--primary);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+      .top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .product-actions {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel" id="loginPanel">
+      <div class="login-icon">
+        <i class="fas fa-lock"></i>
+      </div>
+      <div class="top">
+        <h2><i class="fas fa-user-shield"></i> Admin Login / অ্যাডমিন লগইন</h2>
+        <a href="indax.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> Back to Shop / দোকানে ফিরুন
+        </a>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password / পাসওয়ার্ড</label>
+        <input id="password" type="password" placeholder="Enter password / পাসওয়ার্ড দিন" />
+      </div>
+      
+      <button class="btn" onclick="doLogin()">
+        <i class="fas fa-sign-in-alt"></i> Login / লগইন
+      </button>
+      
+      <p class="small" style="margin-top: 15px;">
+        Admin password is stored only in this file. Change it if you want. / পাসওয়ার্ড এই ফাইলে রাখা আছে — প্রয়োজনে বদলাতে হবে।
+      </p>
+    </div>
+
+    <div class="panel" id="adminPanel" style="display:none;">
+      <div class="top">
+        <h2><i class="fas fa-tools"></i> Product Management / প্রোডাক্ট ম্যানেজমেন্ট</h2>
+        <button class="btn danger" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout / লগআউট
+        </button>
+      </div>
+
+      <form id="addForm">
+        <div class="form-group">
+          <label for="p_name">Product Name / প্রোডাক্ট নাম</label>
+          <input id="p_name" placeholder="Product name (EN | BN) / প্রোডাক্ট নাম" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="p_type">Product Type / প্রোডাক্ট ধরন</label>
+          <select id="p_type" required>
+            <option value="medicine">Medicine / মেডিসিন</option>
+            <option value="supplement">Supplement / সাপ্লিমেন্ট</option>
+            <option value="device">Device / ডিভাইস</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="p_price">Price / মূল্য</label>
+          <input id="p_price" type="number" placeholder="Price / মূল্য" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="p_img">Image URL / ইমেজ URL</label>
+          <input id="p_img" placeholder="Image URL (optional) / ইমেজ URL (ঐচ্ছিক)" />
+        </div>
+        
+        <div class="form-group">
+          <label for="p_desc">Description / বর্ণনা</label>
+          <textarea id="p_desc" placeholder="Description (EN | BN) / বর্ণনা" rows="3"></textarea>
+        </div>
+        
+        <button class="btn" type="submit">
+          <i class="fas fa-plus-circle"></i> Add Product / প্রোডাক্ট যোগ করুন
+        </button>
+      </form>
+
+      <h3 style="margin-top: 30px;">
+        <i class="fas fa-list"></i> Current Products / বর্তমান প্রোডাক্টসমূহ
+      </h3>
+      <ul id="plist"></ul>
+
+      <p class="small" style="margin-top: 20px;">
+        Products are saved to browser localStorage on this PC. When you add a product here it will appear on the public index.html automatically (on this PC/browser). / প্রোডাক্টগুলো ব্রাউজারের localStorage-এ সেভ হবে। এখানে যোগ করলে প্রথম পেজে অটোমেটিক দেখা যাবে।
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = "11223344";
+    const STORAGE_KEY = "medProducts_v1";
+
+    function getProducts(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      try{ return JSON.parse(raw); }catch(e){ return []; }
+    }
+    
+    function saveProducts(list){ 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); 
+    }
+
+    function doLogin(){
+      const p = document.getElementById("password").value;
+      if(p === ADMIN_PASSWORD){
+        document.getElementById("loginPanel").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        renderList();
+      } else {
+        alert("Wrong password / ভুল পাসওয়ার্ড");
+      }
+    }
+    
+    function logout(){
+      document.getElementById("password").value = "";
+      document.getElementById("loginPanel").style.display = "block";
+      document.getElementById("adminPanel").style.display = "none";
+    }
+
+    document.getElementById("addForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const name = document.getElementById("p_name").value.trim();
+      const type = document.getElementById("p_type").value;
+      const price = Number(document.getElementById("p_price").value) || 0;
+      const img = document.getElementById("p_img").value.trim();
+      const desc = document.getElementById("p_desc").value.trim();
+      
+      if (!name || !price) {
+        alert("Please fill in required fields / প্রয়োজনীয় তথ্য দিন");
+        return;
+      }
+      
+      const list = getProducts();
+      const id = Date.now();
+      list.push({ id, name, type, price, img, desc });
+      saveProducts(list);
+      renderList();
+      this.reset();
+      alert("Product added / প্রোডাক্ট যোগ হয়েছে");
+    });
+
+    function renderList(){
+      const list = getProducts();
+      const ul = document.getElementById("plist");
+      ul.innerHTML = "";
+      
+      if(list.length === 0) {
+        ul.innerHTML = `
+          <li style="text-align:center; padding:30px; color:var(--gray)">
+            <i class="fas fa-box-open" style="font-size:40px; margin-bottom:10px;"></i>
+            <p>No products yet / কোনো প্রোডাক্ট নেই</p>
+          </li>
+        `;
+        return;
+      }
+      
+      list.forEach((p, idx)=>{
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div class="product-info">
+            <strong>${p.name}</strong>
+            <div class="small">${p.desc || ''}</div>
+            <div class="product-meta">
+              <span class="product-type">${p.type}</span>
+              <span class="product-price">৳${p.price}</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn danger" style="padding:8px 12px" onclick="delProduct(${p.id})">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function delProduct(id){
+      if(!confirm("Are you sure? Delete product / নিশ্চিত? প্রোডাক্ট মুছে ফেলতে চান?")) return;
+      let list = getProducts();
+      list = list.filter(p=>p.id !== id);
+      saveProducts(list);
+      renderList();
+      alert("Deleted / মুছে ফেলা হয়েছে");
+    }
+
+    (function initSeed(){
+      const key = STORAGE_KEY;
+      if(!localStorage.getItem(key)){
+        const seed = [
+          {id:1, name:"Paracetamol 500mg | প্যারাসিটামল", type:"medicine", price:45, desc:"Fever & pain relief | জ্বর ও ব্যথা কমায়", img:"https://images.unsplash.com/photo-1582719478250-0b8a8f7ef83a?auto=format&fit=crop&w=600&q=60"},
+          {id:2, name:"Vitamin C Tablet | ভিটামিন সি ট্যাবলেট", type:"supplement", price:200, desc:"Boosts immunity | রোগ প্রতিরোধ ক্ষমতা বাড়ায়", img:"https://images.unsplash.com/photo-1580281657525-7a8f9a8b8b59?auto=format&fit=crop&w=600&q=60"}
+        ];
+        localStorage.setItem(key, JSON.stringify(seed));
+      }
+    })();
+  </script>
+</body>
+</html>
