@@ -1,10 +1,12 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Online Medicine Shop | অনলাইন মেডিসিন শপ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -112,6 +114,14 @@
     
     .btn-whatsapp:hover {
       background: #128C7E;
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background: #c0392b;
     }
     
     .admin-link {
@@ -406,6 +416,95 @@
       padding: 20px;
       color: var(--gray);
     }
+
+    /* New CSS for non-intrusive notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary-dark);
+      color: var(--white);
+      padding: 10px 15px;
+      border-radius: var(--radius);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s, visibility 0.5s;
+      z-index: 2000;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+    }
+    
+    .toast-notification.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Product details modal */
+    .product-details {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .product-details img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: var(--radius);
+    }
+    
+    .product-details h3 {
+      margin: 0;
+      color: var(--primary);
+    }
+    
+    .product-details .price {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .product-details .description {
+      color: var(--gray);
+    }
+    
+    .product-details .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    /* Loading indicator */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Order confirmation */
+    .order-confirmation {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .order-confirmation i {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    
+    .order-confirmation h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -506,12 +605,12 @@
       <div class="whatsapp-order">
         <p><strong>দ্রুত অর্ডারের জন্য:</strong> সরাসরি WhatsApp এ অর্ডার করুন</p>
         <p><strong>For quick order:</strong> Order directly on WhatsApp</p>
-        <button type="button" class="btn btn-whatsapp" onclick="orderViaWhatsApp()">
+        <button type="button" class="btn btn-whatsapp" onclick="sendOrderViaWhatsApp()">
           <i class="fab fa-whatsapp"></i> Order on WhatsApp / WhatsApp এ অর্ডার করুন
         </button>
       </div>
       
-      <p class="small">Note: Email sending integration will be added later. For now orders are saved locally in your browser. / ইমেইল পাঠানোর ইন্টিগ্রেশন পরে যোগ করা হবে। আপাতত অর্ডার ব্রাউজারে লোকালি সেভ হবে।</p>
+      <p class="small">Note: The order will be sent to WhatsApp. / অর্ডারটি WhatsApp এ পাঠানো হবে।</p>
     </form>
   </main>
 
@@ -530,6 +629,36 @@
     </div>
   </div>
 
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-info-circle"></i> Product Details</h3>
+        <span class="close" onclick="closeProductModal()">&times;</span>
+      </div>
+      <div id="productDetails"></div>
+    </div>
+  </div>
+
+  <div id="orderConfirmationModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-check-circle"></i> Order Confirmation</h3>
+        <span class="close" onclick="closeOrderConfirmationModal()">&times;</span>
+      </div>
+      <div class="order-confirmation">
+        <i class="fas fa-check-circle"></i>
+        <h3>Thank You for Your Order!</h3>
+        <p>Your order has been placed successfully.</p>
+        <p>আপনার অর্ডার সফলভাবে দেওয়া হয়েছে।</p>
+        <p>We will contact you shortly for confirmation.</p>
+        <p>আমরা শীঘ্রই নিশ্চিতকরণের জন্য আপনার সাথে যোগাযোগ করব।</p>
+        <button class="btn" onclick="closeOrderConfirmationModal()">Continue Shopping</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastNotification" class="toast-notification"></div>
+
   <footer>
     <div class="footer-links">
       <a href="#"><i class="fas fa-phone"></i> Contact Us</a>
@@ -543,12 +672,16 @@
   <script>
     const STORAGE_KEY = "medProducts_v1";
     const ORDER_KEY = "medOrders_v1";
-    const WHATSAPP_NUMBER = "01965630414";
+    // UPDATED WHATSAPP NUMBER
+    const WHATSAPP_NUMBER = "01708708347"; 
 
     const seed = [
       {id:1, name:"Paracetamol 500mg | প্যারাসিটামল", type:"medicine", price:45, desc:"Fever & pain relief | জ্বর ও ব্যথা কমায়", img:"https://images.unsplash.com/photo-1582719478250-0b8a8f7ef83a?auto=format&fit=crop&w=600&q=60"},
       {id:2, name:"Vitamin C Tablet | ভিটামিন সি ট্যাবলেট", type:"supplement", price:200, desc:"Boosts immunity | রোগ প্রতিরোধ ক্ষমতা বাড়ায়", img:"https://images.unsplash.com/photo-1580281657525-7a8f9a8b8b59?auto=format&fit=crop&w=600&q=60"},
-      {id:3, name:"Glucometer | গ্লুকোমিটার", type:"device", price:2500, desc:"Measures blood sugar | রক্তে শর্করা মাপার যন্ত্র", img:"https://images.unsplash.com/photo-1580281657520-1b8f9a1b9c12?auto=format&fit=crop&w=600&q=60"}
+      {id:3, name:"Glucometer | গ্লুকোমিটার", type:"device", price:2500, desc:"Measures blood sugar | রক্তে শর্করা মাপার যন্ত্র", img:"https://images.unsplash.com/photo-1580281657520-1b8f9a1b9c12?auto=format&fit=crop&w=600&q=60"},
+      {id:4, name:"Aspirin 75mg | অ্যাসপিরিন", type:"medicine", price:35, desc:"Blood thinner and pain relief | রক্ত পাতলা ও ব্যথা কমায়", img:"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=60"},
+      {id:5, name:"Vitamin D3 | ভিটামিন ডি৩", type:"supplement", price:180, desc:"Bone health and immunity | হাড়ের স্বাস্থ্য ও রোগ প্রতিরোধ", img:"https://images.unsplash.com/photo-1582719478393-6bbe10b2a6b7?auto=format&fit=crop&w=600&q=60"},
+      {id:6, name:"Blood Pressure Monitor | ব্লাড প্রেশার মনিটর", type:"device", price:3200, desc:"Digital blood pressure monitor | ডিজিটাল ব্লাড প্রেশার মনিটর", img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=600&q=60"}
     ];
 
     function getProducts(){
@@ -614,16 +747,27 @@
 
     let cart = JSON.parse(localStorage.getItem('medCart')) || [];
     
+    // FUNCTION MODIFIED: REMOVED ALERT AND ADDED TOAST
     function addToCart(id){
       const prods = getProducts();
       const p = prods.find(x=>x.id === id);
-      if(!p) return alert("Product not found");
+      if(!p) return;
       const ex = cart.find(i=>i.id===id);
       if(ex) ex.qty++;
       else cart.push({id:p.id,name:p.name,price:p.price,qty:1});
       updateCartCount();
       saveCart();
-      alert(p.name + " added to cart / কার্টে যোগ করা হয়েছে");
+      // Non-intrusive notification
+      showToast(`${p.name} added to cart / কার্টে যোগ করা হয়েছে`);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000); 
     }
     
     function updateCartCount(){
@@ -662,7 +806,7 @@
               <button class="btn" style="padding:4px 8px;font-size:12px;" onclick="updateCartItem(${item.id}, ${item.qty - 1})">-</button>
               <span style="margin:0 8px">${item.qty}</span>
               <button class="btn" style="padding:4px 8px;font-size:12px;" onclick="updateCartItem(${item.id}, ${item.qty + 1})">+</button>
-              <button class="btn danger" style="padding:4px 8px;font-size:12px;margin-left:8px" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:12px;margin-left:8px" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
             </div>
           `;
           cartItems.appendChild(cartItem);
@@ -709,10 +853,40 @@
     function viewDetails(id){
       const p = getProducts().find(x=>x.id===id);
       if(!p) return;
-      alert(`${p.name}\n\n${p.desc || ''}\n\nPrice: ৳${p.price}`);
+      
+      const modal = document.getElementById("productModal");
+      const details = document.getElementById("productDetails");
+      
+      details.innerHTML = `
+        <div class="product-details">
+          <img src="${p.img || ''}" alt="${p.name}" />
+          <h3>${p.name}</h3>
+          <div class="price">৳${p.price}</div>
+          <div class="description">${p.desc || ''}</div>
+          <div class="actions">
+            <button class="btn" onclick="addToCart(${p.id}); closeProductModal();">
+              <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+            <button class="btn btn-secondary" onclick="closeProductModal()">
+              Close
+            </button>
+          </div>
+        </div>
+      `;
+      
+      modal.style.display = "flex";
+    }
+    
+    function closeProductModal() {
+      document.getElementById("productModal").style.display = "none";
+    }
+    
+    function closeOrderConfirmationModal() {
+      document.getElementById("orderConfirmationModal").style.display = "none";
     }
 
-    function orderViaWhatsApp() {
+    // New function to handle both "Submit Order" and "Order on WhatsApp" buttons
+    function sendOrderViaWhatsApp() {
       const name = document.getElementById("o_name").value.trim();
       const phone = document.getElementById("o_phone").value.trim();
       const address = document.getElementById("o_address").value.trim();
@@ -726,11 +900,13 @@
       
       const prods = getProducts();
       const prod = prods.find(p=>String(p.id) === String(productId));
+
+      const paymentMethodText = document.getElementById("o_payment").options[document.getElementById("o_payment").selectedIndex].text;
       
       let message = `Hello! I would like to order:\n\n`;
       message += `Product: ${prod.name}\n`;
       message += `Price: ৳${prod.price}\n`;
-      message += `Payment Method: ${document.getElementById("o_payment").options[document.getElementById("o_payment").selectedIndex].text}\n\n`;
+      message += `Payment Method: ${paymentMethodText}\n\n`;
       message += `My Details:\n`;
       message += `Name: ${name}\n`;
       message += `Phone: ${phone}\n`;
@@ -741,40 +917,21 @@
       const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
       
       window.open(whatsappURL, '_blank');
-    }
 
-    document.getElementById("orderForm").addEventListener("submit", function(e){
-      e.preventDefault();
-      const name = document.getElementById("o_name").value.trim();
-      const phone = document.getElementById("o_phone").value.trim();
-      const address = document.getElementById("o_address").value.trim();
-      const productId = document.getElementById("o_product").value;
-      if(!productId) return alert("Please select a product / প্রোডাক্ট নির্বাচন করুন");
-      const prods = getProducts();
-      const prod = prods.find(p=>String(p.id) === String(productId));
-      const payment = document.getElementById("o_payment").value;
-
-      const order = {
-        id: Date.now(),
-        name, phone, address,
-        productId: prod.id,
-        productName: prod.name,
-        price: prod.price,
-        payment,
-        createdAt: new Date().toISOString()
-      };
-
-      const ordersRaw = localStorage.getItem(ORDER_KEY);
-      const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
-      orders.push(order);
-      localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
-
+      // Clear the form after redirection
       document.getElementById("orderForm").reset();
       cart = [];
       updateCartCount();
       saveCart();
-
-      alert("Order saved locally. Later you can enable email sending. / অর্ডার লোকালি সেভ হয়েছে। পরে ইমেইল সিস্টেম যোগ করা যাবে।");
+      
+      // Show order confirmation modal
+      document.getElementById("orderConfirmationModal").style.display = "flex";
+    }
+    
+    // MODIFIED EVENT LISTENER: Form submission now calls sendOrderViaWhatsApp()
+    document.getElementById("orderForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      sendOrderViaWhatsApp();
     });
 
     document.getElementById("search").addEventListener("input", renderProducts);
@@ -784,6 +941,16 @@
       const modal = document.getElementById('cartModal');
       if (event.target === modal) {
         closeCartModal();
+      }
+      
+      const productModal = document.getElementById('productModal');
+      if (event.target === productModal) {
+        closeProductModal();
+      }
+      
+      const orderConfirmationModal = document.getElementById('orderConfirmationModal');
+      if (event.target === orderConfirmationModal) {
+        closeOrderConfirmationModal();
       }
     });
 
